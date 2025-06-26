@@ -1,4 +1,3 @@
-
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -98,13 +97,13 @@ if go:
 
         col1,col2,col3 = st.columns(3)
         col1.subheader("Couleur (%)")
-        col1.dataframe(pd.DataFrame(col_prob.items(), columns=["Catégorie","Probabilité"]), hide_index=True, use_container_width=True)
+        col1.dataframe(pd.DataFrame(col_prob.items(), columns=["Catégorie","Probabilité (%)"]), hide_index=True, use_container_width=True)
 
         col2.subheader("Pair / Impair (%)")
-        col2.dataframe(pd.DataFrame(par_prob.items(), columns=["Catégorie","Probabilité"]), hide_index=True, use_container_width=True)
+        col2.dataframe(pd.DataFrame(par_prob.items(), columns=["Catégorie","Probabilité (%)"]), hide_index=True, use_container_width=True)
 
         col3.subheader("Douzaines (%)")
-        col3.dataframe(pd.DataFrame(doz_prob.items(), columns=["Catégorie","Probabilité"]), hide_index=True, use_container_width=True)
+        col3.dataframe(pd.DataFrame(doz_prob.items(), columns=["Catégorie","Probabilité (%)"]), hide_index=True, use_container_width=True)
 
         st.markdown("### 🔢 Top 5 numéros")
         st.dataframe(pd.DataFrame(top5, columns=["Numéro","Probabilité (%)"]), hide_index=True, use_container_width=True)
