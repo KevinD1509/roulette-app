@@ -106,4 +106,4 @@ if go:
         col3.dataframe(pd.DataFrame(doz_prob.items(), columns=["Catégorie","Probabilité (%)"]), hide_index=True, use_container_width=True)
 
         st.markdown("### 🔢 Top 5 numéros")
-        st.dataframe(pd.DataFrame(top5, columns=["Numéro","Probabilité (%)"]), hide_index=True, use_container_width=True)
+        st.dataframe(pd.DataFrame(top5.items(), columns=["Numéro","Probabilité (%)"]), hide_index=True, use_container_width=True)
