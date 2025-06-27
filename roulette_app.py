@@ -37,7 +37,7 @@ def analyse(spins):
     w /= w.sum()
     color_cnt, par_cnt, doz_cnt, num_cnt = Counter(), Counter(), Counter(), Counter()
 
-    for i, num in enumerate(spins[::-1]):
+    for i, num in enumerate(spins[::-1]):  # oldest→newest
         weight = w[i]
         if num == 0:
             color_cnt["Zéro"] += weight
@@ -134,29 +134,39 @@ if submitted:
 
         # --------- Top probas block -------------
         st.subheader("⭐ Top probas")
+
+        # calculer toutes les égalités
+        max_color = max(color_prob.values())
+        val_colors = [k for k,v in color_prob.items() if v == max_color]
+        max_par = max(parity_prob.values())
+        val_par = [k for k,v in parity_prob.items() if v == max_par]
+        max_doz = max(dozen_prob.values())
+        val_doz = [k for k,v in dozen_prob.items() if v == max_doz]
+        max_num = max(p for n,p in top5)
+        val_nums = [str(n) for n,p in top5 if p == max_num]
+
         bests = {
-            "Couleur":    (df_color.iloc[0]["Catégorie"], df_color.iloc[0]["Probabilité (%)"]),
-            "Pair/Impair":(df_par.iloc[0]["Catégorie"],    df_par.iloc[0]["Probabilité (%)"]),
-            "Douzaine":   (df_doz.iloc[0]["Catégorie"],    df_doz.iloc[0]["Probabilité (%)"]),
-            "Numéro":     (df_top.iloc[0]["Numéro"],       df_top.iloc[0]["Probabilité (%)"])
+            "Couleur":    (val_colors, max_color),
+            "Pair/Impair":(val_par,   max_par),
+            "Douzaine":   (val_doz,   max_doz),
+            "Numéro":     (val_nums,  max_num)
         }
+
         top_df = (
             pd.DataFrame([
-                {"Catégorie": k, "Probabilité (%)": v[1], "Valeur": v[0]}
+                {"Catégorie": k,
+                 "Probabilité (%)": round(v[1],2),
+                 "Valeur": ", ".join(v[0])}
                 for k,v in bests.items()
             ])
             .sort_values("Probabilité (%)", ascending=False)
         )
 
-        # Arrondi final à 2 décimales
-        top_df["Probabilité (%)"] = top_df["Probabilité (%)"].round(2)
-
-        # Surlignage et alignement
+        # Surlignage et alignements
         max_prob = top_df["Probabilité (%)"].max()
         def highlight_all(row):
             bg = 'background-color: #4FC3F7' if row["Probabilité (%)"] == max_prob else ''
-            return [bg, '', bg]  # color Catégorie & Probabilité only
-
+            return ['', bg, bg]  # color Probabilité & Valeur
         styled = (
             top_df.style
                   .format({"Probabilité (%)":"{:.2f}"})
