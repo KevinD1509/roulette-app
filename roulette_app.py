@@ -101,41 +101,9 @@ if submitted:
     else:
         color_prob, parity_prob, dozen_prob, top5 = analyse(spins)
 
-        # DataFrames triés
-        df_color = (
-            pd.DataFrame(color_prob.items(), columns=["Catégorie","Probabilité (%)"])
-            .sort_values("Probabilité (%)", ascending=False)
-        )
-        df_par = (
-            pd.DataFrame(parity_prob.items(), columns=["Catégorie","Probabilité (%)"])
-            .sort_values("Probabilité (%)", ascending=False)
-        )
-        df_doz = (
-            pd.DataFrame(dozen_prob.items(), columns=["Catégorie","Probabilité (%)"])
-            .sort_values("Probabilité (%)", ascending=False)
-        )
-
-        # Affichage tableaux
-        col1, col2, col3 = st.columns(3)
-        col1.subheader("Couleur")
-        col1.dataframe(df_color, hide_index=True, use_container_width=True)
-        col2.subheader("Pair / Impair")
-        col2.dataframe(df_par, hide_index=True, use_container_width=True)
-        col3.subheader("Douzaines")
-        col3.dataframe(df_doz, hide_index=True, use_container_width=True)
-
-        # Top 5 numéros
-        st.subheader("🔢 Top 5 numéros")
-        df_top = pd.DataFrame({
-            "Numéro": [str(n) for n,_ in top5],
-            "Probabilité (%)": [p for _,p in top5]
-        })
-        st.dataframe(df_top, hide_index=True, use_container_width=True)
-
         # --------- Top probas block -------------
         st.subheader("⭐ Top probas")
-
-        # calculer toutes les égalités
+        # Calculer toutes les égalités
         max_color = max(color_prob.values())
         val_colors = [k for k,v in color_prob.items() if v == max_color]
         max_par = max(parity_prob.values())
@@ -146,17 +114,15 @@ if submitted:
         val_nums = [str(n) for n,p in top5 if p == max_num]
 
         bests = {
-            "Couleur":    (val_colors, max_color),
-            "Pair/Impair":(val_par,   max_par),
-            "Douzaine":   (val_doz,   max_doz),
-            "Numéro":     (val_nums,  max_num)
+            "Couleurs":     (val_colors, max_color),
+            "Pair/Impair":  (val_par,    max_par),
+            "Douzaine":     (val_doz,    max_doz),
+            "Numéro":       (val_nums,   max_num)
         }
 
         top_df = (
             pd.DataFrame([
-                {"Catégorie": k,
-                 "Probabilité (%)": round(v[1],2),
-                 "Valeur": ", ".join(v[0])}
+                {"Catégorie": k, "Probabilité (%)": round(v[1],2), "Valeur": ", ".join(v[0])}
                 for k,v in bests.items()
             ])
             .sort_values("Probabilité (%)", ascending=False)
@@ -166,7 +132,7 @@ if submitted:
         max_prob = top_df["Probabilité (%)"].max()
         def highlight_all(row):
             bg = 'background-color: #4FC3F7' if row["Probabilité (%)"] == max_prob else ''
-            return [bg, bg, bg]  # color Catégorie, Probabilité & Valeur
+            return [bg, bg, bg]
 
         styled = (
             top_df.style
@@ -181,3 +147,33 @@ if submitted:
             hide_index=True,
             use_container_width=True
         )
+
+        # Les autres tableaux
+        df_color = (
+            pd.DataFrame(color_prob.items(), columns=["Catégorie","Probabilité (%)"])
+            .sort_values("Probabilité (%)", ascending=False)
+        )
+        df_par = (
+            pd.DataFrame(parity_prob.items(), columns=["Catégorie","Probabilité (%)"])
+            .sort_values("Probabilité (%)", ascending=False)
+        )
+        df_doz = (
+            pd.DataFrame(dozen_prob.items(), columns=["Catégorie","Probabilité (%)"])
+            .sort_values("Probabilité (%)", ascending=False)
+        )
+
+        col1, col2, col3 = st.columns(3)
+        col1.subheader("Couleurs")
+        col1.dataframe(df_color, hide_index=True, use_container_width=True)
+        col2.subheader("Pair / Impair")
+        col2.dataframe(df_par, hide_index=True, use_container_width=True)
+        col3.subheader("Douzaines")
+        col3.dataframe(df_doz, hide_index=True, use_container_width=True)
+
+        # Top 5 numéros
+        st.subheader("Top 5 numéros")
+        df_top = pd.DataFrame({
+            "Numéro": [str(n) for n,_ in top5],
+            "Probabilité (%)": [p for _,p in top5]
+        })
+        st.dataframe(df_top, hide_index=True, use_container_width=True)
