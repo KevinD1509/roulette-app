@@ -37,7 +37,7 @@ def analyse(spins):
     w /= w.sum()
     color_cnt, par_cnt, doz_cnt, num_cnt = Counter(), Counter(), Counter(), Counter()
 
-    for i, num in enumerate(spins[::-1]):  # oldest->newest
+    for i, num in enumerate(spins[::-1]):
         weight = w[i]
         if num == 0:
             color_cnt["Zéro"] += weight
@@ -53,8 +53,10 @@ def analyse(spins):
     def col(x): return "Zéro" if x == 0 else ("Rouge" if x in RED else "Noir")
     run = 1
     for i in range(1, len(spins)):
-        if col(spins[-i]) == col(spins[-i-1]): run += 1
-        else: break
+        if col(spins[-i]) == col(spins[-i-1]):
+            run += 1
+        else:
+            break
     color_cnt[col(spins[-1])] *= 1 + 0.04 * run**2
 
     # voisinage roue
@@ -115,7 +117,7 @@ if submitted:
 
         # Affichage tableaux
         col1, col2, col3 = st.columns(3)
-        col1.subheader("Couleur")
+        col1.subheader("Couleurs")
         col1.dataframe(df_color, hide_index=True, use_container_width=True)
         col2.subheader("Pair / Impair")
         col2.dataframe(df_par, hide_index=True, use_container_width=True)
@@ -123,7 +125,7 @@ if submitted:
         col3.dataframe(df_doz, hide_index=True, use_container_width=True)
 
         # Top 5 numéros
-        st.markdown("### 🔢 Top 5 numéros")
+        st.markdown("###Top 5 numéros")
         df_top = pd.DataFrame({
             "Numéro": [str(n) for n,_ in top5],
             "Probabilité (%)": [p for _,p in top5]
@@ -133,14 +135,14 @@ if submitted:
         # --------- Top probas block -------------
         st.markdown("### ⭐ Top probas")
         bests = {
-            "Couleur":    (df_color.iloc[0]["Catégorie"], df_color.iloc[0]["Probabilité (%)"]),
-            "Pair/Impair":(df_par.iloc[0]["Catégorie"],     df_par.iloc[0]["Probabilité (%)"]),
-            "Douzaine":   (df_doz.iloc[0]["Catégorie"],     df_doz.iloc[0]["Probabilité (%)"]),
-            "Numéro":     (df_top.iloc[0]["Numéro"],        df_top.iloc[0]["Probabilité (%)"])
+            "Couleurs":    (df_color.iloc[0]["Catégorie"], df_color.iloc[0]["Probabilité (%)"]),
+            "Pair/Impair":(df_par.iloc[0]["Catégorie"],    df_par.iloc[0]["Probabilité (%)"]),
+            "Douzaine":   (df_doz.iloc[0]["Catégorie"],    df_doz.iloc[0]["Probabilité (%)"]),
+            "Numéro":     (df_top.iloc[0]["Numéro"],       df_top.iloc[0]["Probabilité (%)"])
         }
         top_df = (
             pd.DataFrame([
-                {"Catégorie": k, "Valeur": v[0], "Probabilité (%)": v[1]}
+                {"Catégorie": k, "Probabilité (%)": v[1], "Valeur": v[0]}
                 for k,v in bests.items()
             ])
             .sort_values("Probabilité (%)", ascending=False)
