@@ -117,7 +117,7 @@ if submitted:
 
         # Affichage tableaux
         col1, col2, col3 = st.columns(3)
-        col1.subheader("Couleurs")
+        col1.subheader("Couleur")
         col1.dataframe(df_color, hide_index=True, use_container_width=True)
         col2.subheader("Pair / Impair")
         col2.dataframe(df_par, hide_index=True, use_container_width=True)
@@ -125,7 +125,7 @@ if submitted:
         col3.dataframe(df_doz, hide_index=True, use_container_width=True)
 
         # Top 5 numéros
-        st.markdown("###Top 5 numéros")
+        st.subheader("🔢 Top 5 numéros")
         df_top = pd.DataFrame({
             "Numéro": [str(n) for n,_ in top5],
             "Probabilité (%)": [p for _,p in top5]
@@ -133,9 +133,9 @@ if submitted:
         st.dataframe(df_top, hide_index=True, use_container_width=True)
 
         # --------- Top probas block -------------
-        st.markdown("### ⭐ Top probas")
+        st.subheader("⭐ Top probas")
         bests = {
-            "Couleurs":    (df_color.iloc[0]["Catégorie"], df_color.iloc[0]["Probabilité (%)"]),
+            "Couleur":    (df_color.iloc[0]["Catégorie"], df_color.iloc[0]["Probabilité (%)"]),
             "Pair/Impair":(df_par.iloc[0]["Catégorie"],    df_par.iloc[0]["Probabilité (%)"]),
             "Douzaine":   (df_doz.iloc[0]["Catégorie"],    df_doz.iloc[0]["Probabilité (%)"]),
             "Numéro":     (df_top.iloc[0]["Numéro"],       df_top.iloc[0]["Probabilité (%)"])
@@ -151,14 +151,21 @@ if submitted:
         # Arrondi final à 2 décimales
         top_df["Probabilité (%)"] = top_df["Probabilité (%)"].round(2)
 
-        # Surlignage sur les trois colonnes
+        # Surlignage et alignement
         max_prob = top_df["Probabilité (%)"].max()
         def highlight_all(row):
             bg = 'background-color: #4FC3F7' if row["Probabilité (%)"] == max_prob else ''
-            return [bg, bg, bg]
+            return [bg, '', bg]  # color Catégorie & Probabilité only
+
+        styled = (
+            top_df.style
+                  .format({"Probabilité (%)":"{:.2f}"})
+                  .apply(highlight_all, axis=1)
+                  .set_properties(subset=["Valeur"], **{"text-align":"right"})
+        )
 
         st.dataframe(
-            top_df.style.format({"Probabilité (%)":"{:.2f}"}).apply(highlight_all, axis=1),
+            styled,
             hide_index=True,
             use_container_width=True
         )
