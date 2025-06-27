@@ -166,11 +166,13 @@ if submitted:
         max_prob = top_df["Probabilité (%)"].max()
         def highlight_all(row):
             bg = 'background-color: #4FC3F7' if row["Probabilité (%)"] == max_prob else ''
-            return ['', bg, bg]  # color Probabilité & Valeur
+            return [bg, bg, bg]  # color Catégorie, Probabilité & Valeur
+
         styled = (
             top_df.style
                   .format({"Probabilité (%)":"{:.2f}"})
                   .apply(highlight_all, axis=1)
+                  .set_properties(subset=["Probabilité (%)"], **{"text-align":"center"})
                   .set_properties(subset=["Valeur"], **{"text-align":"right"})
         )
 
