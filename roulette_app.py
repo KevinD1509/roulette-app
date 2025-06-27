@@ -33,7 +33,8 @@ LAMBDA = 0.12
 # ---------- Algo Roulette Def ----------
 def analyse(spins):
     n = len(spins)
-    w = np.exp(-LAMBDA * np.arange(n)[::-1]); w /= w.sum()
+    w = np.exp(-LAMBDA * np.arange(n)[::-1])
+    w /= w.sum()
     color_cnt, par_cnt, doz_cnt, num_cnt = Counter(), Counter(), Counter(), Counter()
 
     for i, num in enumerate(spins[::-1]):  # oldest->newest
@@ -61,7 +62,7 @@ def analyse(spins):
     for num in spins[-5:]:
         idx = POS[num]
         for k in (-2,-1,0,1,2):
-            nb[ WHEEL[(idx+k)%37] ] += np.exp(-(k*k)/8)
+            nb[WHEEL[(idx+k)%37]] += np.exp(-(k*k)/8)
     denom = max(nb.values()) if nb else 1
 
     scores = {n: num_cnt[n] + 0.4*(nb[n]/denom) for n in range(37)}
@@ -70,7 +71,8 @@ def analyse(spins):
     # normalise catégories
     for d in (color_cnt, par_cnt, doz_cnt):
         s = sum(d.values()) or 1
-        for k in d: d[k] = round(100 * d[k] / s, 2)
+        for k in d:
+            d[k] = round(100 * d[k] / s, 2)
 
     doz_map = {"1":"1-12", "2":"13-24", "3":"25-36"}
     dozen_prob = {doz_map.get(k, k): v for k, v in doz_cnt.items() if k != "Zéro"}
@@ -85,7 +87,7 @@ st.title("🎯 Algo Roulette – Prédictions")
 
 with st.form("input_form"):
     user_numbers = st.text_area(
-        "Entrez les numéros (≥10) séparés par virgules, espaces ou tirets",
+        "Entrez au moins 10 numéros séparés par virgules, espaces ou tirets",
         height=120
     )
     submitted = st.form_submit_button("Calculer")
@@ -98,37 +100,33 @@ if submitted:
         color_prob, parity_prob, dozen_prob, top5 = analyse(spins)
 
         # DataFrames triés
-        df_color = pd.DataFrame(
-            color_prob.items(),
-            columns=["Catégorie", "Probabilité (%)"]
-        ).sort_values("Probabilité (%)", ascending=False)
-
-        df_par = pd.DataFrame(
-            parity_prob.items(),
-            columns=["Catégorie", "Probabilité (%)"]
-        ).sort_values("Probabilité (%)", ascending=False)
-
-        df_doz = pd.DataFrame(
-            dozen_prob.items(),
-            columns=["Catégorie", "Probabilité (%)"]
-        ).sort_values("Probabilité (%)", ascending=False)
+        df_color = (
+            pd.DataFrame(color_prob.items(), columns=["Catégorie","Probabilité (%)"])
+            .sort_values("Probabilité (%)", ascending=False)
+        )
+        df_par = (
+            pd.DataFrame(parity_prob.items(), columns=["Catégorie","Probabilité (%)"])
+            .sort_values("Probabilité (%)", ascending=False)
+        )
+        df_doz = (
+            pd.DataFrame(dozen_prob.items(), columns=["Catégorie","Probabilité (%)"])
+            .sort_values("Probabilité (%)", ascending=False)
+        )
 
         # Affichage tableaux
         col1, col2, col3 = st.columns(3)
-        col1.subheader("Couleur (%)")
+        col1.subheader("Couleur")
         col1.dataframe(df_color, hide_index=True, use_container_width=True)
-
-        col2.subheader("Pair / Impair (%)")
+        col2.subheader("Pair / Impair")
         col2.dataframe(df_par, hide_index=True, use_container_width=True)
-
-        col3.subheader("Douzaines (%)")
+        col3.subheader("Douzaines")
         col3.dataframe(df_doz, hide_index=True, use_container_width=True)
 
         # Top 5 numéros
         st.markdown("### 🔢 Top 5 numéros")
         df_top = pd.DataFrame({
-            "Numéro": [str(n) for n, _ in top5],
-            "Probabilité (%)": [p for _, p in top5]
+            "Numéro": [str(n) for n,_ in top5],
+            "Probabilité (%)": [p for _,p in top5]
         })
         st.dataframe(df_top, hide_index=True, use_container_width=True)
 
@@ -136,23 +134,29 @@ if submitted:
         st.markdown("### ⭐ Top probas")
         bests = {
             "Couleur":    (df_color.iloc[0]["Catégorie"], df_color.iloc[0]["Probabilité (%)"]),
-            "Pair/Impair":(df_par.iloc[0]["Catégorie"],    df_par.iloc[0]["Probabilité (%)"]),
-            "Douzaine":   (df_doz.iloc[0]["Catégorie"],    df_doz.iloc[0]["Probabilité (%)"]),
-            "Numéro":     (df_top.iloc[0]["Numéro"],       df_top.iloc[0]["Probabilité (%)"])
+            "Pair/Impair":(df_par.iloc[0]["Catégorie"],     df_par.iloc[0]["Probabilité (%)"]),
+            "Douzaine":   (df_doz.iloc[0]["Catégorie"],     df_doz.iloc[0]["Probabilité (%)"]),
+            "Numéro":     (df_top.iloc[0]["Numéro"],        df_top.iloc[0]["Probabilité (%)"])
         }
-        top_df = pd.DataFrame([
-            {"Catégorie": k, "Valeur": v[0], "Probabilité (%)": v[1]}
-            for k, v in bests.items()
-        ]).sort_values("Probabilité (%)", ascending=False)
+        top_df = (
+            pd.DataFrame([
+                {"Catégorie": k, "Valeur": v[0], "Probabilité (%)": v[1]}
+                for k,v in bests.items()
+            ])
+            .sort_values("Probabilité (%)", ascending=False)
+        )
 
-        # Highlight all three columns when the probability is max
+        # Arrondi final à 2 décimales
+        top_df["Probabilité (%)"] = top_df["Probabilité (%)"].round(2)
+
+        # Surlignage sur les trois colonnes
         max_prob = top_df["Probabilité (%)"].max()
         def highlight_all(row):
             bg = 'background-color: #4FC3F7' if row["Probabilité (%)"] == max_prob else ''
             return [bg, bg, bg]
 
         st.dataframe(
-            top_df.style.apply(highlight_all, axis=1),
+            top_df.style.format({"Probabilité (%)":"{:.2f}"}).apply(highlight_all, axis=1),
             hide_index=True,
             use_container_width=True
         )
