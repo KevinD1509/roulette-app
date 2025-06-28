@@ -28,7 +28,7 @@ BLACK = {2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35}
 WHEEL = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,
          10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26]
 POS = {n:i for i,n in enumerate(WHEEL)}
-LAMBDA = 0.12
+LAMBDA = 0.15
 
 # ---------- Algo Roulette Def ----------
 def analyse(spins):
@@ -57,7 +57,7 @@ def analyse(spins):
             run += 1
         else:
             break
-    color_cnt[col(spins[-1])] *= 1 + 0.04 * run**2
+    color_cnt[col(spins[-1])] *= 1 + 0.02 * run**2
 
     # voisinage roue
     nb = Counter()
@@ -67,7 +67,7 @@ def analyse(spins):
             nb[WHEEL[(idx+k)%37]] += np.exp(-(k*k)/8)
     denom = max(nb.values()) if nb else 1
 
-    scores = {n: num_cnt[n] + 0.4*(nb[n]/denom) for n in range(37)}
+    scores = {n: num_cnt[n] + 0.6*(nb[n]/denom) for n in range(37)}
     total_score = sum(scores.values()) or 1
 
     # normalise catégories
